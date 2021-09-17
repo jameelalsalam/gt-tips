@@ -1,0 +1,69 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+require("webshot")
+```
+
+# gt-tips
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of gt-tips is to demo of some tips for `gt` table production
+
+Features I need in a table:
+  - customized calculations (e.g., break out into my own calcs)
+  - readable column and row labels
+  - formatting values to e.g., dollars, percent, comma
+  - borders, shading, bold
+  - column spanners
+  - row spanners
+
+Output formats:
+  - Nice preview look
+  - Something git-trackable (e.g., csv or md output)
+  - Document production output (e.g., to word docs or indesign)
+
+
+```{r data}
+source("gtcars-ex.R")
+source("tab_style.R")
+head(comparison_data)
+```
+
+Here is the gt table:
+
+```{r gt}
+gttbl <- comparison_data %>%
+  gt(
+    rowname_col = "row_label",
+    groupname_col = "grp"
+  ) %>%
+  cols_hide(c(mfr, model, bdy_style)) %>%
+  
+  # labels
+  tab_stubhead("Vehicle") %>%
+  tab_spanner(label = "Power", columns = c(hp, trq)) %>%
+  tab_spanner(label = "Miles-per-gallon", columns = c(mpg_c, mpg_h)) %>%
+  cols_label(!!! col_disp_labels) %>%
+  cols_label(trq = html("Torque<br>(lb-ft)")) %>%
+  
+  # cell formatting
+  fmt_number(columns = where(is.numeric), n_sigfig = 2) %>%
+  #fmt_markdown(columns = c(grp)) %>% # currently not possible to format stub as markdown: https://github.com/rstudio/gt/issues/694
+  tab_style_blue()
+
+gtsave(gttbl, "figs/gtcars-ex.png")
+
+```
+
+
